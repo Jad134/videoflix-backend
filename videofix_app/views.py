@@ -20,9 +20,12 @@ class UserRegistrationView(APIView):
 class CheckUsernameView(APIView):
     permission_classes = [AllowAny]
 
+   
     def get(self, request, username):
-        try:
-            user = User.objects.get(username=username)
+        # Konvertiere den Benutzernamen in Kleinbuchstaben
+        username = username.lower()
+
+        # Suche nach Benutzernamen in der Datenbank, konvertiere auch in Kleinbuchstaben
+        if User.objects.filter(username__iexact=username).exists():
             return Response({"exists": True, "message": "Username is already taken."}, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({"exists": False, "message": "Username is available."}, status=status.HTTP_200_OK)
+        return Response({"exists": False, "message": "Username is available."}, status=status.HTTP_200_OK)

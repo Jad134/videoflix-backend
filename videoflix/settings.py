@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'videofix_app',
     'corsheaders',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -132,3 +133,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ORIGIN_ALLOW_ALL = True
+AUTH_USER_MODEL = 'users.CustomUser'

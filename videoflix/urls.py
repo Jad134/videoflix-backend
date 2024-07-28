@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from videofix_app.views import CheckUsernameView, UserRegistrationView
+from users.views import CheckUsernameView, UserRegistrationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),

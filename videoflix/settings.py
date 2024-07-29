@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -59,7 +60,7 @@ ROOT_URLCONF = 'videoflix.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ os.path.join(BASE_DIR, 'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -134,3 +135,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_ALLOW_ALL = True
 AUTH_USER_MODEL = 'users.CustomUser'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'jadelnader99@gmail.com'  # Ersetze dies mit deiner Gmail-Adresse
+EMAIL_HOST_PASSWORD = 'gkftgtwgkjatmdpt'  # Ersetze dies mit deinem App-Passwort
+DEFAULT_FROM_EMAIL = 'noreply@VideoFlix.com' 

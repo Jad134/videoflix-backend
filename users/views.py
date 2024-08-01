@@ -95,9 +95,13 @@ class ResendActivationLinkView(APIView):
         username = request.data.get('username')
 
         try:
-            user = User.objects.get(username=username, is_active=False)
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response({"detail": "User not found or already activated."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if the user is already activated
+        if user.is_active:
+            return Response({"detail": "User account is already activated."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Generate new activation link and send email
         activation_link = request.build_absolute_uri(

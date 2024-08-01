@@ -12,7 +12,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str  # force_str anstelle von force_text
-
+from django.contrib.auth import authenticate, login
 User = get_user_model()
 
 class UserRegistrationView(APIView):
@@ -34,7 +34,7 @@ class UserRegistrationView(APIView):
                 'Activate Your Account',
                 message,
                 settings.DEFAULT_FROM_EMAIL,
-                [user.username], #username works a mail in this project
+                [user.username], #username works as mail in this project
                 fail_silently=False,
             )
             return Response({"message": "User created successfully. Check your email to activate your account."}, status=status.HTTP_201_CREATED)
@@ -63,3 +63,25 @@ class ActivateAccountView(APIView):
             return Response({"message": "Account activated successfully."}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Activation link is invalid."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class UserLoginView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.check_password(password):
+            if not user.is_active:
+                return Response({"detail": "User account is not activated."}, status=status.HTTP_403_FORBIDDEN)
+            
+            login(request, user)
+            return Response({"message": "Login successful."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)

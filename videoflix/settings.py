@@ -144,3 +144,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'jadelnader99@gmail.com'  # Ersetze dies mit deiner Gmail-Adresse
 EMAIL_HOST_PASSWORD = 'gkftgtwgkjatmdpt'  # Ersetze dies mit deinem App-Passwort
 DEFAULT_FROM_EMAIL = 'noreply@VideoFlix.com' 
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

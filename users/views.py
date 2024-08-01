@@ -85,3 +85,34 @@ class UserLoginView(APIView):
             return Response({"message": "Login successful."}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class ResendActivationLinkView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+
+        try:
+            user = User.objects.get(username=username, is_active=False)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found or already activated."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Generate new activation link and send email
+        activation_link = request.build_absolute_uri(
+            reverse('activate', kwargs={
+                'uidb64': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+        )
+        message = render_to_string('activation_email.html', {'activation_link': activation_link, 'user': user})
+        send_mail(
+            'Activate Your Account',
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.username],  # Use the registered email as recipient
+            fail_silently=False,
+        )
+
+        return Response({"message": "Activation link resent successfully. Check your email."}, status=status.HTTP_200_OK)

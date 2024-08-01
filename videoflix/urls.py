@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from users.views import ActivateAccountView, CheckUsernameView, UserLoginView, UserRegistrationView
+from users.views import ActivateAccountView, CheckUsernameView, UserLoginView, UserRegistrationView, ResendActivationLinkView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +24,5 @@ urlpatterns = [
     path('check-username/<str:username>/', CheckUsernameView.as_view(), name='check-username'),
     path('activate/<uidb64>/<token>/', ActivateAccountView.as_view(), name='activate'),
     path('login/', UserLoginView.as_view(), name='login'),
+    path('resend-activation/', ResendActivationLinkView.as_view(), name='login'),
 ]

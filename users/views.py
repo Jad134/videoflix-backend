@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -60,10 +61,9 @@ class ActivateAccountView(APIView):
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
-            return Response({"message": "Account activated successfully."}, status=status.HTTP_200_OK)
+            return render(request, 'account_activated.html')
         else:
-            return Response({"message": "Activation link is invalid."}, status=status.HTTP_400_BAD_REQUEST)
-
+            return HttpResponseBadRequest("Activation link is invalid.")
 
 
 

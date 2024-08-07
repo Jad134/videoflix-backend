@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'videofix_app',
     'corsheaders',
-    'users'
+    'users',
+    'content'
 ]
 
 MIDDLEWARE = [
@@ -148,3 +149,6 @@ DEFAULT_FROM_EMAIL = 'noreply@VideoFlix.com'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

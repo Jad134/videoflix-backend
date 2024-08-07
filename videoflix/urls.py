@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from users.views import ActivateAccountView, CheckUsernameView, UserLoginView, UserRegistrationView, ResendActivationLinkView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +27,4 @@ urlpatterns = [
     path('activate/<uidb64>/<token>/', ActivateAccountView.as_view(), name='activate'),
     path('login/', UserLoginView.as_view(), name='login'),
     path('resend-activation/', ResendActivationLinkView.as_view(), name='login'),
-]
+]  + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

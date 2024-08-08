@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'videofix_app',
     'corsheaders',
     'users',
-    'content'
+    'content.apps.ContentConfig'
 ]
 
 MIDDLEWARE = [

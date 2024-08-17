@@ -42,10 +42,12 @@ INSTALLED_APPS = [
     'videofix_app',
     'corsheaders',
     'users',
-    'content.apps.ContentConfig'
+    'content.apps.ContentConfig',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -163,3 +165,12 @@ CACHES = {
     "KEY_PREFIX": "videoflix"   
     }
 }
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    "http://localhost:4200/browse"
+    # ...
+]
+
+CACHE_TTL = 60 * 15

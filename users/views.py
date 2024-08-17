@@ -43,7 +43,6 @@ class UserRegistrationView(APIView):
 
 class CheckUsernameView(APIView):
     permission_classes = [AllowAny]
-
     def get(self, request, username):
         username = username.lower()
         if User.objects.filter(username__iexact=username).exists():

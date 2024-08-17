@@ -20,6 +20,7 @@ from content.views import VideoListView
 from users.views import ActivateAccountView, CheckUsernameView, UserLoginView, UserRegistrationView, ResendActivationLinkView
 from django.conf import settings
 from django.conf.urls.static import static
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,4 +30,4 @@ urlpatterns = [
     path('login/', UserLoginView.as_view(), name='login'),
     path('resend-activation/', ResendActivationLinkView.as_view(), name='login'),
     path('videos/', VideoListView.as_view(), name='video-list'),
-]  + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+]  + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT) + debug_toolbar_urls()

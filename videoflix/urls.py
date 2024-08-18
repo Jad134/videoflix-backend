@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from content.views import VideoListView
 from users.views import ActivateAccountView, CheckUsernameView, UserLoginView, UserRegistrationView, ResendActivationLinkView
 from django.conf import settings
@@ -30,4 +30,5 @@ urlpatterns = [
     path('login/', UserLoginView.as_view(), name='login'),
     path('resend-activation/', ResendActivationLinkView.as_view(), name='login'),
     path('videos/', VideoListView.as_view(), name='video-list'),
+    path('django-rq/', include('django_rq.urls')),
 ]  + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT) + debug_toolbar_urls()

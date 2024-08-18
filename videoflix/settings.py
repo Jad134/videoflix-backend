@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'users',
     'content.apps.ContentConfig',
     'debug_toolbar',
+    'django_rq',
 ]
 
 MIDDLEWARE = [
@@ -174,3 +175,14 @@ INTERNAL_IPS = [
 ]
 
 CACHE_TTL = 60 * 15
+
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 360,
+       
+    },
+}

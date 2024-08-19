@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'content.apps.ContentConfig',
     'debug_toolbar',
     'django_rq',
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +131,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -186,3 +188,7 @@ RQ_QUEUES = {
        
     },
 }
+
+
+#Import/Export
+IMPORT_EXPORT_USE_TRANSACTIONS = True

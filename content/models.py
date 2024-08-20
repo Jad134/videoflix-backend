@@ -9,5 +9,8 @@ class Video(models.Model):
     video_file = models.FileField(upload_to='videos', blank=True, null=True)
     category = models.CharField(max_length=40)
 
+    video_480p = models.FileField(upload_to='videos/480p', blank=True, null=True)
+    video_720p = models.FileField(upload_to='videos/720p', blank=True, null=True)
+
     def __str__(self) :
         return  self.title

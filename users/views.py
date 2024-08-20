@@ -81,7 +81,13 @@ class UserLoginView(APIView):
                 return Response({"detail": "User account is not activated."}, status=status.HTTP_403_FORBIDDEN)
             
             login(request, user)
-            return Response({"message": "Login successful."}, status=status.HTTP_200_OK)
+            user_data = {
+                "username": user.username,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+            }
+            return Response({"message": "Login successful.", "user": user_data}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
         

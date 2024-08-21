@@ -1,12 +1,15 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
+from content.serializers import VideoSerializer
+
 User = get_user_model()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
+
 
     class Meta:
         model = User

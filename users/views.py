@@ -5,6 +5,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
+
+from content.models import Video
+from content.serializers import VideoSerializer
+from users.models import CustomUser
 from .serializers import UserRegistrationSerializer
 from rest_framework.permissions import AllowAny
 from django.urls import reverse
@@ -15,6 +19,9 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str  # force_str anstelle von force_text
 from django.contrib.auth import authenticate, login
 User = get_user_model()
+from rest_framework.permissions import IsAuthenticated
+
+
 
 class UserRegistrationView(APIView):
     def post(self, request):
@@ -82,6 +89,7 @@ class UserLoginView(APIView):
             
             login(request, user)
             user_data = {
+                "user_id": user.id,
                 "username": user.username,
                 "email": user.email,
                 "first_name": user.first_name,
@@ -125,3 +133,41 @@ class ResendActivationLinkView(APIView):
         )
 
         return Response({"message": "Activation link resent successfully. Check your email."}, status=status.HTTP_200_OK)
+    
+
+
+class FavoriteVideoToggle(APIView):
+
+    def post(self, request, video_id):
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({"error": "User ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            video = Video.objects.get(id=video_id)
+        except Video.DoesNotExist:
+            return Response({"error": "Video not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        if video in user.favorite_videos.all():
+            user.favorite_videos.remove(video)
+            return Response({"message": "Video removed from favorites."}, status=status.HTTP_200_OK)
+        else:
+            user.favorite_videos.add(video)
+            return Response({"message": "Video added to favorites."}, status=status.HTTP_200_OK)
+        
+
+class UserFavoritesByIdView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        favorite_videos = user.favorite_videos.all()  # Abrufen der favorisierten Videos
+        video_ids = favorite_videos.values_list('id', flat=True)  # Nur die IDs extrahieren
+        return Response(video_ids, status=status.HTTP_200_OK)

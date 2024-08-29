@@ -37,13 +37,26 @@ class UserRegistrationView(APIView):
                     'token': default_token_generator.make_token(user),
                 })
             )
-            message = render_to_string('activation_email.html', {'activation_link': activation_link, 'user': user})
+            html_message = render_to_string('activation_email.html', {
+                'activation_link': activation_link,
+                'user': user
+            })
+
+            # Text-Inhalt als Fallback
+            plain_message = (
+                f"Hi {user.username},\n\n"
+                f"Thank you for registering with us. To activate your account, please click the link below:\n"
+                f"{activation_link}\n\n"
+                f"If you did not create this account, you can safely ignore this email."
+            )
+
             send_mail(
                 'Activate Your Account',
-                message,
+                plain_message,  # Text-Inhalt als Fallback
                 settings.DEFAULT_FROM_EMAIL,
-                [user.username], #username works as mail in this project
+                [user.username],  # E-Mail-Adresse des Benutzers
                 fail_silently=False,
+                html_message=html_message  # HTML-Inhalt
             )
             return Response({"message": "User created successfully. Check your email to activate your account."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -123,14 +136,27 @@ class ResendActivationLinkView(APIView):
                 'token': default_token_generator.make_token(user),
             })
         )
-        message = render_to_string('activation_email.html', {'activation_link': activation_link, 'user': user})
+        html_message = render_to_string('activation_email.html', {
+                'activation_link': activation_link,
+                'user': user
+            })
+
+            # Text-Inhalt als Fallback
+        plain_message = (
+                f"Hi {user.username},\n\n"
+                f"Thank you for registering with us. To activate your account, please click the link below:\n"
+                f"{activation_link}\n\n"
+                f"If you did not create this account, you can safely ignore this email."
+            )
+
         send_mail(
-            'Activate Your Account',
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user.username],  # Use the registered email as recipient
-            fail_silently=False,
-        )
+                'Activate Your Account',
+                plain_message,  # Text-Inhalt als Fallback
+                settings.DEFAULT_FROM_EMAIL,
+                [user.username],  # E-Mail-Adresse des Benutzers
+                fail_silently=False,
+                html_message=html_message  # HTML-Inhalt
+            )
 
         return Response({"message": "Activation link resent successfully. Check your email."}, status=status.HTTP_200_OK)
     

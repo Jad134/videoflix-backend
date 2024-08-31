@@ -28,7 +28,7 @@ urlpatterns = [
     path('check-username/<str:username>/', CheckUsernameView.as_view(), name='check-username'),
     path('activate/<uidb64>/<token>/', ActivateAccountView.as_view(), name='activate'),
     path('login/', UserLoginView.as_view(), name='login'),
-    path('resend-activation/', ResendActivationLinkView.as_view(), name='login'),
+    path('resend-activation/', ResendActivationLinkView.as_view(), name='resend-activation'),
     path('videos/', VideoListView.as_view(), name='video-list'),
     path('django-rq/', include('django_rq.urls')),
     path('favorites/toggle/<int:video_id>/', FavoriteVideoToggle.as_view(), name='favorite-toggle'),

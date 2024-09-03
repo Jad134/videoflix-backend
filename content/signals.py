@@ -8,11 +8,16 @@ from django.core.files import File
 
 @receiver(post_save, sender=Video)
 def video_post_save(sender, instance, created, **kwargs):
+    """
+      Signal handler that is triggered after a Video object is saved.
+      When a new video is created, this function enqueues tasks for video conversion 
+      to the default queue.
+
+    """ 
     print('Video wurde gepeichert')
     if created: 
         print('New Video created')
         queue = django_rq.get_queue('default', autocommit=True)
-        # Enqueue conversion tasks with video_id
         queue.enqueue(convert_480p, instance.video_file.path, instance.id)
         queue.enqueue(convert_720p, instance.video_file.path, instance.id)
 
@@ -31,6 +36,12 @@ def video_post_delete(sender, instance,  **kwargs):
 
 @receiver(post_save, sender=Video)
 def update_converted_files(sender, instance, **kwargs):
+    """
+    Signal handler that is triggered after a Video object is saved.
+
+    Checks if the converted versions of the video (480p and 720p) exist 
+    and saves them in the respective fields of the Video instance.
+    """
     base, ext = os.path.splitext(instance.video_file.path)
 
     # Überprüfen und Aktualisieren der 480p-Version

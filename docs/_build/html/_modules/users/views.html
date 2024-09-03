@@ -44,6 +44,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../users.html">Users App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../content.html">Content App</a></li>
 </ul>
 
         </div>
@@ -100,55 +101,93 @@
 <a class="viewcode-back" href="../../users.html#users.views.UserRegistrationView">[docs]</a>
 <span class="k">class</span> <span class="nc">UserRegistrationView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">       A view to register users.</span>
+<span class="sd">    A view to register users.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="UserRegistrationView.post">
 <a class="viewcode-back" href="../../users.html#users.views.UserRegistrationView.post">[docs]</a>
     <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        test</span>
+<span class="sd">        Handle user registration and send activation email.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">serializer</span> <span class="o">=</span> <span class="n">UserRegistrationSerializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
-            <span class="n">user</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-            <span class="n">user</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Deaktiviert das Benutzerkonto bis zur Aktivierung</span>
-            <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
-            <span class="n">activation_link</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">build_absolute_uri</span><span class="p">(</span>
-                <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;activate&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s1">&#39;uidb64&#39;</span><span class="p">:</span> <span class="n">urlsafe_base64_encode</span><span class="p">(</span><span class="n">force_bytes</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)),</span>
-                    <span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">default_token_generator</span><span class="o">.</span><span class="n">make_token</span><span class="p">(</span><span class="n">user</span><span class="p">),</span>
-                <span class="p">})</span>
-            <span class="p">)</span>
-            <span class="n">html_message</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span><span class="s1">&#39;activation_email.html&#39;</span><span class="p">,</span> <span class="p">{</span>
-                <span class="s1">&#39;activation_link&#39;</span><span class="p">:</span> <span class="n">activation_link</span><span class="p">,</span>
-                <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span>
-            <span class="p">})</span>
-
-            <span class="c1"># Text-Inhalt als Fallback</span>
-            <span class="n">plain_message</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Hi </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">,</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Thank you for registering with us. To activate your account, please click the link below:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activation_link</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;If you did not create this account, you can safely ignore this email.&quot;</span>
-            <span class="p">)</span>
-
-            <span class="n">send_mail</span><span class="p">(</span>
-                <span class="s1">&#39;Activate Your Account&#39;</span><span class="p">,</span>
-                <span class="n">plain_message</span><span class="p">,</span>  <span class="c1"># Text-Inhalt als Fallback</span>
-                <span class="n">settings</span><span class="o">.</span><span class="n">DEFAULT_FROM_EMAIL</span><span class="p">,</span>
-                <span class="p">[</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">],</span>  <span class="c1"># E-Mail-Adresse des Benutzers</span>
-                <span class="n">fail_silently</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">html_message</span><span class="o">=</span><span class="n">html_message</span>  <span class="c1"># HTML-Inhalt</span>
-            <span class="p">)</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_inactive_user</span><span class="p">(</span><span class="n">serializer</span><span class="p">)</span>
+            <span class="n">activation_link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_activation_link</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_send_activation_email</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">activation_link</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;User created successfully. Check your email to activate your account.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_201_CREATED</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span> <span class="nf">_create_inactive_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an inactive user from the serializer data.</span>
+<span class="sd">        </span>
+<span class="sd">        :param serializer: The validated serializer.</span>
+<span class="sd">        :type serializer: UserRegistrationSerializer</span>
+<span class="sd">        :return: The created user.</span>
+<span class="sd">        :rtype: User</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">user</span>
+
+    <span class="k">def</span> <span class="nf">_build_activation_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the activation link for the user.</span>
+<span class="sd">        </span>
+<span class="sd">        :param request: The HTTP request object.</span>
+<span class="sd">        :type request: HttpRequest</span>
+<span class="sd">        :param user: The user for whom the activation link is being built.</span>
+<span class="sd">        :type user: User</span>
+<span class="sd">        :return: The activation link.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">build_absolute_uri</span><span class="p">(</span>
+            <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;activate&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;uidb64&#39;</span><span class="p">:</span> <span class="n">urlsafe_base64_encode</span><span class="p">(</span><span class="n">force_bytes</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)),</span>
+                <span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">default_token_generator</span><span class="o">.</span><span class="n">make_token</span><span class="p">(</span><span class="n">user</span><span class="p">),</span>
+            <span class="p">})</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_send_activation_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">activation_link</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send an activation email to the user.</span>
+<span class="sd">        </span>
+<span class="sd">        :param user: The user to whom the activation email will be sent.</span>
+<span class="sd">        :type user: User</span>
+<span class="sd">        :param activation_link: The activation link to include in the email.</span>
+<span class="sd">        :type activation_link: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">html_message</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span><span class="s1">&#39;activation_email.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;activation_link&#39;</span><span class="p">:</span> <span class="n">activation_link</span><span class="p">,</span>
+            <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span>
+        <span class="p">})</span>
+        <span class="n">plain_message</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Hi </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">,</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Thank you for registering with us. To activate your account, please click the link below:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activation_link</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;If you did not create this account, you can safely ignore this email.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">send_mail</span><span class="p">(</span>
+            <span class="s1">&#39;Activate Your Account&#39;</span><span class="p">,</span>
+            <span class="n">plain_message</span><span class="p">,</span>  <span class="c1"># Text-Inhalt als Fallback</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">DEFAULT_FROM_EMAIL</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">],</span>  <span class="c1"># E-Mail-Adresse des Benutzers</span>
+            <span class="n">fail_silently</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">html_message</span><span class="o">=</span><span class="n">html_message</span>  <span class="c1"># HTML-Inhalt</span>
+        <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="CheckUsernameView">
 <a class="viewcode-back" href="../../users.html#users.views.CheckUsernameView">[docs]</a>
 <span class="k">class</span> <span class="nc">CheckUsernameView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if the username is already axist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">AllowAny</span><span class="p">]</span>
 <div class="viewcode-block" id="CheckUsernameView.get">
 <a class="viewcode-back" href="../../users.html#users.views.CheckUsernameView.get">[docs]</a>
@@ -163,6 +202,9 @@
 <div class="viewcode-block" id="ActivateAccountView">
 <a class="viewcode-back" href="../../users.html#users.views.ActivateAccountView">[docs]</a>
 <span class="k">class</span> <span class="nc">ActivateAccountView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Activates the user&#39;s account after clicking the email link to complete registration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ActivateAccountView.get">
 <a class="viewcode-back" href="../../users.html#users.views.ActivateAccountView.get">[docs]</a>
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uidb64</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
@@ -186,33 +228,52 @@
 <div class="viewcode-block" id="UserLoginView">
 <a class="viewcode-back" href="../../users.html#users.views.UserLoginView">[docs]</a>
 <span class="k">class</span> <span class="nc">UserLoginView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Logs the user in and returns the user data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="UserLoginView.post">
 <a class="viewcode-back" href="../../users.html#users.views.UserLoginView.post">[docs]</a>
     <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle user login.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
         <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">)</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_user</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">Response</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">user</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">check_password</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid credentials.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;User account is not activated.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
+
+        <span class="n">login</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Login successful.&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_user_data</span><span class="p">(</span><span class="n">user</span><span class="p">)},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve user by username.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid credentials.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">check_password</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;User account is not activated.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">)</span>
-            
-            <span class="n">login</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
-            <span class="n">user_data</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
-                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
-                <span class="s2">&quot;first_name&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span>
-                <span class="s2">&quot;last_name&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Login successful.&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="n">user_data</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid credentials.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span></div>
-</div>
+    <span class="k">def</span> <span class="nf">_get_user_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve user data for response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+            <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+            <span class="s2">&quot;first_name&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span>
+            <span class="s2">&quot;last_name&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
 
         
 
@@ -220,6 +281,9 @@
 <div class="viewcode-block" id="ResendActivationLinkView">
 <a class="viewcode-back" href="../../users.html#users.views.ResendActivationLinkView">[docs]</a>
 <span class="k">class</span> <span class="nc">ResendActivationLinkView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Send a new Activation Link to the Email</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">AllowAny</span><span class="p">]</span>
 
 <div class="viewcode-block" id="ResendActivationLinkView.post">
@@ -231,12 +295,9 @@
             <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;User not found.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_404_NOT_FOUND</span><span class="p">)</span>
-
-        <span class="c1"># Check if the user is already activated</span>
         <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;User account is already activated.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
 
-        <span class="c1"># Generate new activation link and send email</span>
         <span class="n">activation_link</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">build_absolute_uri</span><span class="p">(</span>
             <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;activate&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
                 <span class="s1">&#39;uidb64&#39;</span><span class="p">:</span> <span class="n">urlsafe_base64_encode</span><span class="p">(</span><span class="n">force_bytes</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)),</span>
@@ -247,8 +308,7 @@
                 <span class="s1">&#39;activation_link&#39;</span><span class="p">:</span> <span class="n">activation_link</span><span class="p">,</span>
                 <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span>
             <span class="p">})</span>
-
-            <span class="c1"># Text-Inhalt als Fallback</span>
+        
         <span class="n">plain_message</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Hi </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">,</span><span class="se">\n\n</span><span class="s2">&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Thank you for registering with us. To activate your account, please click the link below:</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -264,7 +324,6 @@
                 <span class="n">fail_silently</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">html_message</span><span class="o">=</span><span class="n">html_message</span>  <span class="c1"># HTML-Inhalt</span>
             <span class="p">)</span>
-
         <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Activation link resent successfully. Check your email.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span></div>
 </div>
 
@@ -274,31 +333,59 @@
 <div class="viewcode-block" id="FavoriteVideoToggle">
 <a class="viewcode-back" href="../../users.html#users.views.FavoriteVideoToggle">[docs]</a>
 <span class="k">class</span> <span class="nc">FavoriteVideoToggle</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Toggle a video as a favorite for a user.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="FavoriteVideoToggle.post">
 <a class="viewcode-back" href="../../users.html#users.views.FavoriteVideoToggle.post">[docs]</a>
     <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">video_id</span><span class="p">):</span>
-        <span class="n">user_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles adding or removing a video from user&#39;s favorites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_user</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">Response</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">user</span>
+
+        <span class="n">video</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_video</span><span class="p">(</span><span class="n">video_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="n">Response</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">video</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toggle_favorite</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">video</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a user by ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User ID is required.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
-
+        
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">User</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User not found.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_404_NOT_FOUND</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_get_video</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">video_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a video by ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">video_id</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Video</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">video_id</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">Video</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Video not found.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_404_NOT_FOUND</span><span class="p">)</span>
-        
+
+    <span class="k">def</span> <span class="nf">_toggle_favorite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">video</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Toggle the favorite status of a video for a user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">video</span> <span class="ow">in</span> <span class="n">user</span><span class="o">.</span><span class="n">favorite_videos</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="n">user</span><span class="o">.</span><span class="n">favorite_videos</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Video removed from favorites.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">user</span><span class="o">.</span><span class="n">favorite_videos</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Video added to favorites.&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span></div>
-</div>
+
 
         
 

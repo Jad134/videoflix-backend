@@ -16,7 +16,7 @@ class UserRegistrationViewTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.url = reverse('register')  # Passe 'user-registration' an deinen URL-Namen an
+        self.url = reverse('register') 
 
     def test_user_registration(self):
         data = {
@@ -33,16 +33,6 @@ class UserRegistrationViewTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertTrue(User.objects.filter(username='testuser').exists())
 
-    # def test_registration_email_sent(self):
-    #     data = {
-    #         'username': 'testuser2',
-    #         'password': 'testpassword123',
-    #         'email': 'testuser2@example.com'
-    #     }
-    #     self.client.post(self.url, data, content_type='application/json')
-    #     self.assertEqual(len(mail.outbox), 1)
-    #     self.assertIn('Activate Your Account', mail.outbox[0].subject)
-
 
 class CheckUsernameViewTest(TestCase):
 
@@ -50,7 +40,7 @@ class CheckUsernameViewTest(TestCase):
         self.client = Client()
 
     def test_username_available(self):
-        url = reverse('check-username', args=['check-username'])  # Passe 'check-username' an deinen URL-Namen an
+        url = reverse('check-username', args=['check-username'])  
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.json()['exists'])
@@ -73,7 +63,7 @@ class ActivateAccountViewTest(TestCase):
         user = User.objects.create_user(username='testuser', password='testpassword', is_active=False)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        url = reverse('activate', kwargs={'uidb64': uidb64, 'token': token})  # Passe 'activate' an deinen URL-Namen an
+        url = reverse('activate', kwargs={'uidb64': uidb64, 'token': token}) 
         response = self.client.get(url)
         user.refresh_from_db()
         self.assertTrue(user.is_active)
@@ -87,7 +77,7 @@ class UserLoginViewTest(TestCase):
         self.user = User.objects.create_user(username='testuser', password='testpassword')
 
     def test_user_login_success(self):
-        url = reverse('login')  # Passe 'user-login' an deinen URL-Namen an
+        url = reverse('login')  
         data = {'username': 'testuser', 'password': 'testpassword'}
         response = self.client.post(url, data, content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -101,28 +91,11 @@ class UserLoginViewTest(TestCase):
         self.assertIn('Invalid credentials.', response.json()['detail'])
 
 
-# class ResendActivationLinkViewTest(TestCase):
-
-#     def setUp(self):
-#         self.client = Client()
-#         self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='testpassword', is_active=False)
-
-#     def test_resend_activation_link(self):
-#         url = reverse('resend-activation')  # Passe 'resend-activation-link' an deinen URL-Namen an
-#         data = {'username': 'testuser'}
-#         response = self.client.post(url, data, content_type='application/json')
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(len(mail.outbox), 1)
-#         self.assertIn('Activate Your Account', mail.outbox[0].subject)
-
-
-
 class UserFavoritesByIdViewTest(TestCase):
 
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='testpassword')
-        # Erstellen einer einfachen Dummy-Datei für das Video
         video_file = SimpleUploadedFile('test_video.mp4', b'test video content')
         self.video1 = Video.objects.create(title='Test Video 1', description='A test video 1.', video_file=video_file)
         self.video2 = Video.objects.create(title='Test Video 2', description='A test video 2.', video_file=video_file)

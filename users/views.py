@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.http import HttpResponseBadRequest
-from django.shortcuts import render
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,7 +10,7 @@ from django.contrib.auth import get_user_model
 from content.models import Video
 from content.serializers import VideoSerializer
 from users.models import CustomUser
-from .serializers import UserRegistrationSerializer
+from .serializers import SetNewPasswordSerializer, UserRegistrationSerializer
 from rest_framework.permissions import AllowAny
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -20,6 +21,8 @@ from django.utils.encoding import force_bytes, force_str  # force_str anstelle v
 from django.contrib.auth import authenticate, login
 User = get_user_model()
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib import messages
 
 
 
@@ -272,3 +275,83 @@ class UserFavoritesByIdView(APIView):
         favorite_videos = user.favorite_videos.all()  # Abrufen der favorisierten Videos
         video_ids = favorite_videos.values_list('id', flat=True)  # Nur die IDs extrahieren
         return Response(video_ids, status=status.HTTP_200_OK)
+    
+
+class PasswordResetRequestView(APIView):
+    """
+    Sends an email with a link to reset the password.
+    """
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"detail": "Email address not found."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        reset_link = request.build_absolute_uri(
+            reverse('password_reset_confirm', kwargs={
+                'uidb64': uid,
+                'token': token
+            })
+        )
+        self._send_reset_email(user, reset_link)
+        return Response({"message": "Password reset email sent."}, status=status.HTTP_200_OK)
+
+    def _send_reset_email(self, user, reset_link):
+        html_message = render_to_string('password_reset_email.html', {
+            'reset_link': reset_link,
+            'user': user
+        })
+        plain_message = (
+            f"Hi {user.username},\n\n"
+            f"To reset your password, please click the link below:\n"
+            f"{reset_link}\n\n"
+            f"If you did not request this, please ignore this email."
+        )
+        send_mail(
+            'Password Reset Request',
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+            html_message=html_message
+        )
+
+
+class PasswordResetConfirmView(View):
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            form = SetPasswordForm(user)
+            return render(request, 'password_reset_confirm.html', {'form': form, 'uid': uidb64, 'token': token})
+        else:
+            messages.error(request, 'The password reset link is invalid or has expired.')
+            return redirect('password_reset_request')  # URL zur Seite zur Anforderung eines neuen Links oder zur Anmeldung
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            form = SetPasswordForm(user, data=request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Your password has been reset successfully.')
+                # Weiterleiten zur gewünschten URL Ihrer Frontend-Anwendung
+                frontend_url = settings.FRONTEND_URL
+                return HttpResponseRedirect(frontend_url)  # Ersetzen Sie die URL entsprechend
+            else:
+                return render(request, 'password_reset_confirm.html', {'form': form, 'uid': uidb64, 'token': token})
+        else:
+            messages.error(request, 'The password reset link is invalid or has expired.')
+            return redirect('password_reset_request')  # URL zur Seite zur Anforderung eines neuen Links oder zur Anmeldung

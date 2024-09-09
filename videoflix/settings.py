@@ -198,3 +198,8 @@ IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 #Frontend Link
 FRONTEND_URL = 'http://localhost:4200/login'
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://jad-el-nader.developerakademie.org',
+]

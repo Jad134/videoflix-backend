@@ -197,7 +197,7 @@ RQ_QUEUES = {
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 #Frontend Link
-FRONTEND_URL = 'http://localhost:4200/login'
+FRONTEND_URL = 'https://jad-portfolio.de/VideoFlix/login'
 
 
 CSRF_TRUSTED_ORIGINS = [

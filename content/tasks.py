@@ -7,7 +7,7 @@ def convert_480p(source, video_id):
     # server
     base, ext = os.path.splitext(source)
     target = f"{base}_480p{ext}"
-    cmd = f'/usr/bin/ffmpeg -i "{source}" -s hd360 -c:v libx264 -crf 23 -c:a aac -strict -2 "{target}"'
+    cmd = f'/usr/bin/ffmpeg -i "{source}" -s 640x360 -c:v libx264 -crf 23 -c:a aac -strict -2 "{target}"'
     subprocess.run(cmd, shell=True, check=True)
     update_converted_files(video_id)
 

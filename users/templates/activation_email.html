@@ -63,7 +63,14 @@
         <div class="content">
             <p>Hi {{ user.username }},</p>
             <p>Thank you for registering with us. To activate your account, please click the button below:</p>
-            <a href="{{ activation_link }}" class="button">Activate Your Account</a>
+            <a style="display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;" href="{{ activation_link }}" class="button">Activate Your Account</a>
             <p>If you did not create this account, you can safely ignore this email.</p>
         </div>
         <div class="footer">

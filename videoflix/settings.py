@@ -185,7 +185,7 @@ INTERNAL_IPS = [
     # ...
 ]
 
-CACHE_TTL = 60 * 15
+CACHE_TTL = 60 * 2
 
 
 RQ_QUEUES = {

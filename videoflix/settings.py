@@ -182,6 +182,8 @@ INTERNAL_IPS = [
     # ...
     "127.0.0.1",
     "http://localhost:4200/browse"
+    "https://jad-portfolio.de/VideoFlix/browse"
+    "https://jad-portfolio.de"
     # ...
 ]
 

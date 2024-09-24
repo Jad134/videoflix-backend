@@ -180,12 +180,12 @@ CACHES = {
 
 INTERNAL_IPS = [
     # ...
-    "85.13.166.50"
+    "85.13.166.50",
     "127.0.0.1",
-    "http://localhost:4200/browse"
-    "https://jad-portfolio.de/VideoFlix/browse"
-    "https://jad-portfolio.de"
-     "85.13.166.50"
+    "http://localhost:4200/browse",
+    "https://jad-portfolio.de/VideoFlix/browse",
+    "https://jad-portfolio.de",
+     "85.13.166.50",
     # ...
 ]
 
@@ -212,4 +212,5 @@ FRONTEND_URL = 'https://jad-portfolio.de/VideoFlix/login'
 
 CSRF_TRUSTED_ORIGINS = [
     'https://jad-el-nader.developerakademie.org',
+    'https://jad-portfolio.de',
 ]

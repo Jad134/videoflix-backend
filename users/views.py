@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from content.models import Video
 from content.serializers import VideoSerializer
 from users.models import CustomUser
@@ -156,8 +156,12 @@ class UserLoginView(APIView):
         if not user.is_active:
             return Response({"detail": "User account is not activated."}, status=status.HTTP_403_FORBIDDEN)
 
-        login(request, user)
-        return Response({"message": "Login successful.", "user": self._get_user_data(user)}, status=status.HTTP_200_OK)
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user": self._get_user_data(user)
+        }, status=status.HTTP_200_OK)
 
     def _get_user(self, username):
         """

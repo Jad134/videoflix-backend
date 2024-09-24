@@ -21,6 +21,7 @@ from users.views import ActivateAccountView, CheckUsernameView, FavoriteVideoTog
 from django.conf import settings
 from django.conf.urls.static import static
 from debug_toolbar.toolbar import debug_toolbar_urls
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +29,8 @@ urlpatterns = [
     path('check-username/<str:username>/', CheckUsernameView.as_view(), name='check-username'),
     path('activate/<uidb64>/<token>/', ActivateAccountView.as_view(), name='activate'),
     path('login/', UserLoginView.as_view(), name='login'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('resend-activation/', ResendActivationLinkView.as_view(), name='resend-activation'),
     path('videos/', VideoListView.as_view(), name='video-list'),
     path('django-rq/', include('django_rq.urls')),

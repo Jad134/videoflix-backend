@@ -214,3 +214,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://jad-el-nader.developerakademie.org',
     'https://jad-portfolio.de',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}

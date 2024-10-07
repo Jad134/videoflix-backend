@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+import sentry_sdk
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +31,19 @@ ALLOWED_HOSTS = ['jad-el-nader.developerakademie.org', '127.0.0.1']
 
 
 # Application definition
+
+
+sentry_sdk.init(
+    dsn="https://94d9e7bda6a3d35eab29bd7e516fd88c@o4508080982130688.ingest.de.sentry.io/4508081062412368",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for tracing.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',

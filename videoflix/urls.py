@@ -23,7 +23,12 @@ from django.conf.urls.static import static
 from debug_toolbar.toolbar import debug_toolbar_urls
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 urlpatterns = [
+    path('sentry-debug/', trigger_error),
     path('admin/', admin.site.urls),
     path('register/', UserRegistrationView.as_view(), name='register'),
     path('check-username/<str:username>/', CheckUsernameView.as_view(), name='check-username'),

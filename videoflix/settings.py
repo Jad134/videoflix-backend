@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-&e7xqka=5epoxk12dn#q$mcagh+t=_5iwx9qcr)l-umf(_q%$_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['jad-el-nader.developerakademie.org', '127.0.0.1']
+ALLOWED_HOSTS = ['videoflix.jad-portfolio-api.de','jad-el-nader.developerakademie.org', '127.0.0.1','34.91.87.15']
 
 
 # Application definition
@@ -151,10 +151,13 @@ USE_TZ = True
 # ]
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/var/www/videoflix/staticfiles'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+#STATIC_ROOT = '/var/www/videoflix/staticfiles'
+#STATICFILES_DIRS = [
+#    os.path.join(BASE_DIR, 'static'),
+#]
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

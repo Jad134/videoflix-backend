@@ -17,7 +17,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str  # force_str anstelle von force_text
+from django.utils.encoding import force_bytes, force_str 
 from django.contrib.auth import authenticate, login
 User = get_user_model()
 from rest_framework.permissions import IsAuthenticated
@@ -97,11 +97,11 @@ class UserRegistrationView(APIView):
 
         send_mail(
             'Activate Your Account',
-            plain_message,  # Text-Inhalt als Fallback
+            plain_message,  
             settings.DEFAULT_FROM_EMAIL,
-            [user.username],  # E-Mail-Adresse des Benutzers
+            [user.username], 
             fail_silently=False,
-            html_message=html_message  # HTML-Inhalt
+            html_message=html_message
         )
 
 
@@ -272,8 +272,8 @@ class UserFavoritesByIdView(APIView):
         except CustomUser.DoesNotExist:
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        favorite_videos = user.favorite_videos.all()  # Abrufen der favorisierten Videos
-        video_ids = favorite_videos.values_list('id', flat=True)  # Nur die IDs extrahieren
+        favorite_videos = user.favorite_videos.all()  
+        video_ids = favorite_videos.values_list('id', flat=True)  
         return Response(video_ids, status=status.HTTP_200_OK)
     
 
@@ -333,7 +333,7 @@ class PasswordResetConfirmView(View):
             return render(request, 'password_reset_confirm.html', {'form': form, 'uid': uidb64, 'token': token})
         else:
             messages.error(request, 'The password reset link is invalid or has expired.')
-            return redirect('password_reset_request')  # URL zur Seite zur Anforderung eines neuen Links oder zur Anmeldung
+            return redirect('password_reset_request')  
 
     def post(self, request, uidb64, token):
         try:
@@ -347,11 +347,10 @@ class PasswordResetConfirmView(View):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Your password has been reset successfully.')
-                # Weiterleiten zur gewünschten URL Ihrer Frontend-Anwendung
                 frontend_url = settings.FRONTEND_URL
-                return HttpResponseRedirect(frontend_url)  # Ersetzen Sie die URL entsprechend
+                return HttpResponseRedirect(frontend_url) 
             else:
                 return render(request, 'password_reset_confirm.html', {'form': form, 'uid': uidb64, 'token': token})
         else:
             messages.error(request, 'The password reset link is invalid or has expired.')
-            return redirect('password_reset_request')  # URL zur Seite zur Anforderung eines neuen Links oder zur Anmeldung
+            return redirect('password_reset_request')  

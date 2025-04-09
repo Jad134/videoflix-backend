@@ -10,7 +10,7 @@ class Command(BaseCommand):
         dataset = video_resource.export()
         json_data = dataset.json
 
-        # Speichern der JSON-Daten in einer Datei
+
         with open('videos_export.json', 'w') as json_file:
             json_file.write(json_data)
         

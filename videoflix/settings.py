@@ -150,8 +150,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'jadelnader99@gmail.com'  # Ersetze dies mit deiner Gmail-Adresse
-EMAIL_HOST_PASSWORD = 'gkftgtwgkjatmdpt'  # Ersetze dies mit deinem App-Passwort
+EMAIL_HOST_USER = 'jadelnader99@gmail.com'  
+EMAIL_HOST_PASSWORD = 'gkftgtwgkjatmdpt'  
 DEFAULT_FROM_EMAIL = 'noreply@VideoFlix.com' 
 
 AUTHENTICATION_BACKENDS = [

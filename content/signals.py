@@ -44,14 +44,13 @@ def update_converted_files(sender, instance, **kwargs):
     """
     base, ext = os.path.splitext(instance.video_file.path)
 
-    # Überprüfen und Aktualisieren der 480p-Version
+  
     video_480p_path = f"{base}_480p{ext}"
     if os.path.exists(video_480p_path) and not instance.video_480p:
         with open(video_480p_path, 'rb') as f:
             instance.video_480p.save(f"{instance.title}_480p{ext}", File(f))
         instance.save()
 
-    # Überprüfen und Aktualisieren der 720p-Version
     video_720p_path = f"{base}_720p{ext}"
     if os.path.exists(video_720p_path) and not instance.video_720p:
         with open(video_720p_path, 'rb') as f:

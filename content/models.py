@@ -1,6 +1,6 @@
 from django.db import models
 from datetime import date
-# Create your models here.
+
 
 class Video(models.Model):
     created_at = models.DateField(default=date.today)

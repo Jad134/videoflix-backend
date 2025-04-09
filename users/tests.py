@@ -11,7 +11,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
 
-# Create your tests here.
+
 class UserRegistrationViewTest(TestCase):
 
     def setUp(self):

@@ -44,7 +44,6 @@ class VideoModelTest(TestCase):
         self.assertTrue(video_720p_field.null)
 
     def test_video_file_upload(self):
-    # Extrahiere nur den Basisnamen der Datei
      uploaded_file_name = os.path.basename(self.video.video_file.name)
      self.assertTrue(uploaded_file_name.startswith('test_video'))
      self.assertTrue(uploaded_file_name.endswith('.mp4'))

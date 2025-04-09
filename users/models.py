@@ -6,7 +6,7 @@ from content.models import Video
 
 class CustomUser(AbstractUser): 
   """
-  Model for the user. Use a custom user tith abstract User
+  Model for the user. Use a custom user with abstract User
   """  
   custom = models.CharField(max_length=500, default='')   
   address = models.CharField(max_length=150, default='')   

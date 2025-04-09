@@ -4,6 +4,8 @@ from django.utils.encoding import force_bytes, force_str
 from content.serializers import VideoSerializer
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator
 
 User = get_user_model()
 
@@ -13,11 +15,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(required=True)
 
 
+
     class Meta:
         model = User
         fields = ('username', 'password', 'email','first_name', 'last_name', 'custom', 'address', 'phone')
 
-        
+    def validate_username(self, value):
+        return CheckValidMail.validate_username(value)
+
+     
     def create(self, validated_data):
         custom = validated_data.pop('custom', '')
         address = validated_data.pop('address', '')
@@ -57,3 +63,12 @@ class SetNewPasswordSerializer(serializers.Serializer):
             'user': user,
             'new_password': new_password
         }
+    
+class CheckValidMail():
+    @staticmethod
+    def validate_username(username):
+        try:
+            EmailValidator()(username)
+        except ValidationError:
+            raise ValidationError("Invalid email address.")
+        return username

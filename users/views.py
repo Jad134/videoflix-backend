@@ -28,6 +28,84 @@ from django.core.exceptions import ValidationError
 
 
 
+# class UserRegistrationView(APIView):
+#     """
+#     A view to register users.
+#     """
+
+#     def post(self, request):
+#         """
+#         Handle user registration and send activation email.
+#         """
+#         serializer = UserRegistrationSerializer(data=request.data)
+#         if serializer.is_valid():
+#             user = self._create_inactive_user(serializer)
+#             activation_link = self._build_activation_link(request, user)
+#             self._send_activation_email(user, activation_link)
+#             return Response({"message": "User created successfully. Check your email to activate your account."}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def _create_inactive_user(self, serializer):
+#         """
+#         Create an inactive user from the serializer data.
+        
+#         :param serializer: The validated serializer.
+#         :type serializer: UserRegistrationSerializer
+#         :return: The created user.
+#         :rtype: User
+#         """
+#         user = serializer.save()
+#         user.is_active = False
+#         user.save()
+#         return user
+
+#     def _build_activation_link(self, request, user):
+#         """
+#         Build the activation link for the user.
+        
+#         :param request: The HTTP request object.
+#         :type request: HttpRequest
+#         :param user: The user for whom the activation link is being built.
+#         :type user: User
+#         :return: The activation link.
+#         :rtype: str
+#         """
+#         return request.build_absolute_uri(
+#             reverse('activate', kwargs={
+#                 'uidb64': urlsafe_base64_encode(force_bytes(user.pk)),
+#                 'token': default_token_generator.make_token(user),
+#             })
+#         )
+
+#     def _send_activation_email(self, user, activation_link):
+#         """
+#         Send an activation email to the user.
+        
+#         :param user: The user to whom the activation email will be sent.
+#         :type user: User
+#         :param activation_link: The activation link to include in the email.
+#         :type activation_link: str
+#         """
+#         html_message = render_to_string('activation_email.html', {
+#             'activation_link': activation_link,
+#             'user': user
+#         })
+#         plain_message = (
+#             f"Hi {user.username},\n\n"
+#             f"Thank you for registering with us. To activate your account, please click the link below:\n"
+#             f"{activation_link}\n\n"
+#             f"If you did not create this account, you can safely ignore this email."
+#         )
+
+#         send_mail(
+#             'Activate Your Account',
+#             plain_message,  
+#             settings.DEFAULT_FROM_EMAIL,
+#             [user.username], 
+#             fail_silently=False,
+#             html_message=html_message
+#         )
+
 class UserRegistrationView(APIView):
     """
     A view to register users.

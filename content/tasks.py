@@ -3,21 +3,17 @@ import os
 from content.models import Video
 from django.core.files import File
 
-def convert_480p(source, video_id):
-    print("Current PATH:", os.environ['PATH'])
-    os.environ['PATH'] += r';D:\Dev\tools\ffmpeg-2025-04-17-git-7684243fbe-full_build\bin'
-    base, ext = os.path.splitext(source)
-    target = f"{base}_480p{ext}"
-    cmd = r'"D:\Dev\tools\ffmpeg-2025-04-17-git-7684243fbe-full_build\bin\ffmpeg.exe" -i "{}" -s hd480 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, target)
-    subprocess.run(cmd, shell=True, check=True)
-    update_converted_files(video_id)
 
-def convert_720p(source, video_id):
+
+def convert_video(source, video_id, resolution):
     print("Current PATH:", os.environ['PATH'])
     os.environ['PATH'] += r';D:\Dev\tools\ffmpeg-2025-04-17-git-7684243fbe-full_build\bin'
     base, ext = os.path.splitext(source)
-    target = f"{base}_720p{ext}"
-    cmd = r'"D:\Dev\tools\ffmpeg-2025-04-17-git-7684243fbe-full_build\bin\ffmpeg.exe" -i "{}" -s hd720 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, target)
+    target = f"{base}_{resolution}p{ext}"
+    if resolution == 480:
+       cmd = r'"D:\Dev\tools\ffmpeg-2025-04-17-git-7684243fbe-full_build\bin\ffmpeg.exe" -i "{}" -s hd480 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, target)
+    elif resolution == 720:
+       cmd = r'"D:\Dev\tools\ffmpeg-2025-04-17-git-7684243fbe-full_build\bin\ffmpeg.exe" -i "{}" -s hd720 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, target)
     subprocess.run(cmd, shell=True, check=True)
     update_converted_files(video_id)
 

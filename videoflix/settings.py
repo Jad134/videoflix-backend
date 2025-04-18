@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,7 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-     'corsheaders.middleware.CorsMiddleware',
+     
 ]
 
 ROOT_URLCONF = 'videoflix.urls'
@@ -162,23 +163,23 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 #Cache deaktiviert für lokalbetrieb
-# CACHES = { 
-#  "default": { 
-#      "BACKEND": "django_redis.cache.RedisCache",
-#      "LOCATION": "redis://127.0.0.1:6379/1",        
-#      "OPTIONS": {           
-#         "CLIENT_CLASS": "django_redis.client.DefaultClient"        
-#         },
-#     "KEY_PREFIX": "videoflix"   
-#     }
-# }
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-snowflake",
+CACHES = { 
+ "default": { 
+     "BACKEND": "django_redis.cache.RedisCache",
+     "LOCATION": "redis://127.0.0.1:6379/1",        
+     "OPTIONS": {           
+        "CLIENT_CLASS": "django_redis.client.DefaultClient"        
+        },
+    "KEY_PREFIX": "videoflix"   
     }
 }
+
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+#         "LOCATION": "unique-snowflake",
+#     }
+# }
 
 INTERNAL_IPS = [
     # ...
@@ -187,7 +188,7 @@ INTERNAL_IPS = [
     # ...
 ]
 
-CACHE_TTL = 60 * 15
+CACHE_TTL = 60 * 1
 
 
 RQ_QUEUES = {

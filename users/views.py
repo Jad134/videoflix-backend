@@ -85,9 +85,9 @@ class EmailSender:
         """
         Send an activation link to the User.
 
-        :param user: Der Benutzer, dem die Aktivierungs-E-Mail gesendet wird.
+        :param user: The user to whom the activation email is sent.
         :type user: User
-        :param activation_link: Der Aktivierungslink, der in der E-Mail enthalten ist.
+        :param activation_link: The activation link contained in the email.
         :type activation_link: str
         """
         html_message = render_to_string('activation_email.html', {

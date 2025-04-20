@@ -202,14 +202,9 @@ class ResendActivationLinkView(APIView):
             if user.is_active:
                 return Response({"detail": "User account is already activated."}, status=status.HTTP_400_BAD_REQUEST)
             
-            activation_link = request.build_absolute_uri(
-                reverse('activate', kwargs={'uidb64': urlsafe_base64_encode(force_bytes(user.pk)), 
-                                            'token': default_token_generator.make_token(user)}))
-            html_message = render_to_string('activation_email.html', {'activation_link': activation_link, 'user': user})
-            plain_message = (f"Hi {user.username},\n\nThank you for registering with us. To activate your account, "
-                             f"please click the link below:\n{activation_link}\n\nIf you did not create this account, you can safely ignore this email.")
-            send_mail('Activate Your Account', plain_message, settings.DEFAULT_FROM_EMAIL, [user.username], 
-                      fail_silently=False, html_message=html_message)
+            activation_link = ActivationLinkGenerator.build_activation_link(request, user)
+            EmailSender.send_activation_email(user, activation_link)
+            
             return Response({"message": "Activation link resent successfully. Check your email."}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)

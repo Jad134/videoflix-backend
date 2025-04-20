@@ -215,73 +215,7 @@ class ResendActivationLinkView(APIView):
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
     
-
-
-class FavoriteVideoToggle(APIView):
-    """
-    Toggle a video as a favorite for a user.
-    """
-
-    def post(self, request, video_id):
-        """
-        Handles adding or removing a video from user's favorites.
-        """
-        user = self._get_user(request.data.get('user_id'))
-        if isinstance(user, Response):
-            return user
-
-        video = self._get_video(video_id)
-        if isinstance(video, Response):
-            return video
-
-        return self._toggle_favorite(user, video)
-
-    def _get_user(self, user_id):
-        """
-        Retrieve a user by ID.
-        """
-        if not user_id:
-            return Response({"error": "User ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            return User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    def _get_video(self, video_id):
-        """
-        Retrieve a video by ID.
-        """
-        try:
-            return Video.objects.get(id=video_id)
-        except Video.DoesNotExist:
-            return Response({"error": "Video not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    def _toggle_favorite(self, user, video):
-        """
-        Toggle the favorite status of a video for a user.
-        """
-        if video in user.favorite_videos.all():
-            user.favorite_videos.remove(video)
-            return Response({"message": "Video removed from favorites."}, status=status.HTTP_200_OK)
-        else:
-            user.favorite_videos.add(video)
-            return Response({"message": "Video added to favorites."}, status=status.HTTP_200_OK)
-
-        
-
-class UserFavoritesByIdView(APIView):
-    def get(self, request, user_id):
-        try:
-            user = CustomUser.objects.get(id=user_id)
-        except CustomUser.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        favorite_videos = user.favorite_videos.all()  
-        video_ids = favorite_videos.values_list('id', flat=True)  
-        return Response(video_ids, status=status.HTTP_200_OK)
     
-
 class PasswordResetRequestView(APIView):
     """
     Sends an email with a link to reset the password.
@@ -359,3 +293,76 @@ class PasswordResetConfirmView(View):
         else:
             messages.error(request, 'The password reset link is invalid or has expired.')
             return redirect('password_reset_request')  
+        
+
+
+
+
+
+
+
+
+
+# class FavoriteVideoToggle(APIView):
+#     """
+#     Toggle a video as a favorite for a user.
+#     """
+
+#     def post(self, request, video_id):
+#         """
+#         Handles adding or removing a video from user's favorites.
+#         """
+#         user = self._get_user(request.data.get('user_id'))
+#         if isinstance(user, Response):
+#             return user
+
+#         video = self._get_video(video_id)
+#         if isinstance(video, Response):
+#             return video
+
+#         return self._toggle_favorite(user, video)
+
+#     def _get_user(self, user_id):
+#         """
+#         Retrieve a user by ID.
+#         """
+#         if not user_id:
+#             return Response({"error": "User ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+#         try:
+#             return User.objects.get(id=user_id)
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+#     def _get_video(self, video_id):
+#         """
+#         Retrieve a video by ID.
+#         """
+#         try:
+#             return Video.objects.get(id=video_id)
+#         except Video.DoesNotExist:
+#             return Response({"error": "Video not found."}, status=status.HTTP_404_NOT_FOUND)
+
+#     def _toggle_favorite(self, user, video):
+#         """
+#         Toggle the favorite status of a video for a user.
+#         """
+#         if video in user.favorite_videos.all():
+#             user.favorite_videos.remove(video)
+#             return Response({"message": "Video removed from favorites."}, status=status.HTTP_200_OK)
+#         else:
+#             user.favorite_videos.add(video)
+#             return Response({"message": "Video added to favorites."}, status=status.HTTP_200_OK)
+
+        
+
+# class UserFavoritesByIdView(APIView):
+#     def get(self, request, user_id):
+#         try:
+#             user = CustomUser.objects.get(id=user_id)
+#         except CustomUser.DoesNotExist:
+#             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+#         favorite_videos = user.favorite_videos.all()  
+#         video_ids = favorite_videos.values_list('id', flat=True)  
+#         return Response(video_ids, status=status.HTTP_200_OK)

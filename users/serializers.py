@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from django.utils.encoding import force_bytes, force_str
-from content.serializers import VideoSerializer
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import  force_str
+from django.utils.http import  urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
@@ -39,6 +38,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             phone=phone
         )
         return user
+ 
     
 class SetNewPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True)
@@ -64,6 +64,7 @@ class SetNewPasswordSerializer(serializers.Serializer):
             'new_password': new_password
         }
     
+
 class CheckValidMail():
     @staticmethod
     def validate_username(username):

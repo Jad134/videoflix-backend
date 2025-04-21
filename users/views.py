@@ -6,11 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
-
-from content.models import Video
-from content.serializers import VideoSerializer
-from users.models import CustomUser
-from .serializers import SetNewPasswordSerializer, UserRegistrationSerializer
+from .serializers import  UserRegistrationSerializer
 from rest_framework.permissions import AllowAny
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -18,15 +14,11 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str 
-from django.contrib.auth import authenticate, login
-from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import login
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib import messages
-from django.core.validators import EmailValidator
-from django.core.exceptions import ValidationError
 
 User = get_user_model()
-
 
 
 class UserRegistrationView(APIView):
@@ -121,6 +113,7 @@ class CheckUsernameView(APIView):
             return Response({"exists": True, "message": "Username is already taken."}, status=status.HTTP_200_OK)
         return Response({"exists": False, "message": "Username is available."}, status=status.HTTP_200_OK)
 
+
 class ActivateAccountView(APIView):
     """
     Activates the user's account after clicking the email link to complete registration
@@ -138,8 +131,7 @@ class ActivateAccountView(APIView):
             return render(request, 'account_activated.html')
         else:
             return HttpResponseBadRequest("Activation link is invalid.")
-
-
+        
 
 class UserLoginView(APIView):
     """
@@ -185,8 +177,6 @@ class UserLoginView(APIView):
             "last_name": user.last_name,
         }
 
-        
-
 
 class ResendActivationLinkView(APIView):
     """
@@ -209,7 +199,6 @@ class ResendActivationLinkView(APIView):
         except User.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    
     
 class PasswordResetRequestView(APIView):
     """

@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from content.models import Video
-# Create your models here.
 
 class CustomUser(AbstractUser): 
   """

@@ -246,35 +246,7 @@ class PasswordResetEmailSender:
             fail_silently=False,
             html_message=html_message
         )
-
-
-class PasswordResetConfirmView(View):
-    def get(self, request, uidb64, token):
-        user = UserFromUidService.from_uidb64(uidb64)
-
-        if user is not None and default_token_generator.check_token(user, token):
-            form = SetPasswordForm(user)
-            return render(request, 'password_reset_confirm.html', {'form': form, 'uid': uidb64, 'token': token})
-        else:
-            messages.error(request, 'The password reset link is invalid or has expired.')
-            return redirect('password_reset_request')  
-
-    def post(self, request, uidb64, token):
-        user = UserFromUidService.from_uidb64(uidb64)
-
-        if user is not None and default_token_generator.check_token(user, token):
-            form = SetPasswordForm(user, data=request.POST)
-            if form.is_valid():
-                form.save()
-                messages.success(request, 'Your password has been reset successfully.')
-                frontend_url = settings.FRONTEND_URL
-                return HttpResponseRedirect(frontend_url) 
-            else:
-                return render(request, 'password_reset_confirm.html', {'form': form, 'uid': uidb64, 'token': token})
-        else:
-            messages.error(request, 'The password reset link is invalid or has expired.')
-            return redirect('password_reset_request')  
-        
+          
 
 class PasswordResetFormView(View):
     def get(self, request, uidb64, token):

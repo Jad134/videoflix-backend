@@ -119,11 +119,7 @@ class ActivateAccountView(APIView):
     Activates the user's account after clicking the email link to complete registration
     """
     def get(self, request, uidb64, token):
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
+        user = UserFromUidService.from_uidb64(uidb64)
 
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
@@ -209,18 +205,29 @@ class PasswordResetRequestView(APIView):
         except User.DoesNotExist:
             return Response({"detail": "Email address not found."}, status=status.HTTP_400_BAD_REQUEST)
         
+        reset_link = ResetPasswordLinkGenerator.build_reset_passwort_link(request, user) 
+        PasswordResetEmailSender.send(user, reset_link)
+
+        return Response({"message": "Password reset email sent."}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordLinkGenerator:
+
+    @staticmethod
+    def build_reset_passwort_link(request, user):
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        reset_link = request.build_absolute_uri(
-            reverse('password_reset_confirm', kwargs={
+        return request.build_absolute_uri(
+            reverse('password_reset_form', kwargs={
                 'uidb64': uid,
                 'token': token
             })
         )
-        self._send_reset_email(user, reset_link)
-        return Response({"message": "Password reset email sent."}, status=status.HTTP_200_OK)
 
-    def _send_reset_email(self, user, reset_link):
+
+class PasswordResetEmailSender:
+    @staticmethod
+    def send(user, reset_link):
         html_message = render_to_string('password_reset_email.html', {
             'reset_link': reset_link,
             'user': user
@@ -243,11 +250,7 @@ class PasswordResetRequestView(APIView):
 
 class PasswordResetConfirmView(View):
     def get(self, request, uidb64, token):
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
+        user = UserFromUidService.from_uidb64(uidb64)
 
         if user is not None and default_token_generator.check_token(user, token):
             form = SetPasswordForm(user)
@@ -257,11 +260,7 @@ class PasswordResetConfirmView(View):
             return redirect('password_reset_request')  
 
     def post(self, request, uidb64, token):
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
+        user = UserFromUidService.from_uidb64(uidb64)
 
         if user is not None and default_token_generator.check_token(user, token):
             form = SetPasswordForm(user, data=request.POST)
@@ -275,6 +274,54 @@ class PasswordResetConfirmView(View):
         else:
             messages.error(request, 'The password reset link is invalid or has expired.')
             return redirect('password_reset_request')  
+        
+
+class PasswordResetFormView(View):
+    def get(self, request, uidb64, token):
+        user = UserFromUidService.from_uidb64(uidb64)
+
+        if user is not None and default_token_generator.check_token(user, token):
+            form = SetPasswordForm(user)
+            return render(request, 'password_reset_confirm.html', {
+                'form': form,
+                'uid': uidb64,
+                'token': token
+            })
+        else:
+            messages.error(request, 'The password reset link is invalid or has expired.')
+            return redirect('password_reset_request')
+        
+
+class PasswordResetSubmitView(View):
+    def post(self, request, uidb64, token):
+        user = UserFromUidService.from_uidb64(uidb64)
+
+        if user is not None and default_token_generator.check_token(user, token):
+            form = SetPasswordForm(user, data=request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Your password has been reset successfully.')
+                return redirect(settings.FRONTEND_URL)
+            else:
+                return render(request, 'password_reset_confirm.html', {
+                    'form': form,
+                    'uid': uidb64,
+                    'token': token
+                })
+        else:
+            messages.error(request, 'The password reset link is invalid or has expired.')
+            return redirect('password_reset_request')
+        
+
+class UserFromUidService:
+    @staticmethod
+    def from_uidb64(uidb64):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+            return user
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return None
         
 
 

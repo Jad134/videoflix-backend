@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from content.views import VideoListView
-from users.views import ActivateAccountView, CheckUsernameView,  PasswordResetConfirmView, PasswordResetRequestView,  UserLoginView, UserRegistrationView, ResendActivationLinkView
+from users.views import ActivateAccountView, CheckUsernameView,  PasswordResetConfirmView, PasswordResetFormView, PasswordResetRequestView, PasswordResetSubmitView,  UserLoginView, UserRegistrationView, ResendActivationLinkView
 from django.conf import settings
 from django.conf.urls.static import static
 from debug_toolbar.toolbar import debug_toolbar_urls
@@ -32,5 +32,6 @@ urlpatterns = [
     path('videos/', VideoListView.as_view(), name='video-list'),
     path('django-rq/', include('django_rq.urls')),
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
-    path('reset/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-]  + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT) + debug_toolbar_urls()
+    path('reset/<uidb64>/<token>/', PasswordResetFormView.as_view(), name='password_reset_form'),
+    path('reset/submit/<uidb64>/<token>/', PasswordResetSubmitView.as_view(), name='password_reset_submit'),
+    ]  + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT) + debug_toolbar_urls()

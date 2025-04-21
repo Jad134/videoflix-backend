@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from .serializers import  UserRegistrationSerializer
+from .serializers import  SimpleUserSerializer, UserRegistrationSerializer
 from rest_framework.permissions import AllowAny
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -144,38 +144,36 @@ class UserLoginView(APIView):
         """
         username = request.data.get('username')
         password = request.data.get('password')
-        user = self._get_user(username)
-        if isinstance(user, Response):
-            return user
-
-        if not user.check_password(password):
-            return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
-        if not user.is_active:
-            return Response({"detail": "User account is not activated."}, status=status.HTTP_403_FORBIDDEN)
+        user = UserFetcher.by_username(username)
+        error_response = LoginValidator.validate(user, password)
+        if error_response:
+         return error_response
 
         login(request, user)
-        return Response({"message": "Login successful.", "user": self._get_user_data(user)}, status=status.HTTP_200_OK)
+        
+        serialized_user = SimpleUserSerializer(user).data
+        return Response({"message": "Login successful.", "user": serialized_user}, status=status.HTTP_200_OK)
 
-    def _get_user(self, username):
-        """
-        Retrieve user by username.
-        """
+
+class LoginValidator():
+
+    @staticmethod
+    def validate(user, password): 
+      if not user:
+           return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+      if not user.check_password(password):
+            return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+      if not user.is_active:
+            return Response({"detail": "User account is not activated."}, status=status.HTTP_403_FORBIDDEN)
+
+
+class UserFetcher:
+    @staticmethod
+    def by_username(username):
         try:
             return User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
-
-    def _get_user_data(self, user):
-        """
-        Retrieve user data for response.
-        """
-        return {
-            "user_id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-        }
+            return None
 
 
 class ResendActivationLinkView(APIView):

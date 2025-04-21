@@ -38,8 +38,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             phone=phone
         )
         return user
- 
-    
+
+
 class SetNewPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True)
     uidb64 = serializers.CharField()
@@ -73,3 +73,8 @@ class CheckValidMail():
         except ValidationError:
             raise ValidationError("Invalid email address.")
         return username
+    
+class SimpleUserSerializer(serializers.ModelSerializer):
+     class Meta:
+        model = User
+        fields = ("id", "username", "email", "first_name", "last_name")   

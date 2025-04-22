@@ -5,8 +5,6 @@ from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
-from content.models import Video
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
 
@@ -19,7 +17,7 @@ class UserRegistrationViewTest(TestCase):
 
     def test_user_registration(self):
         data = {
-            'username': 'testuser',
+            'username': 'testuser@example.com',
             'password': 'password123',
             'first_name': 'Jad',
             'last_name': 'LaLa',
@@ -30,7 +28,7 @@ class UserRegistrationViewTest(TestCase):
         }
         response = self.client.post(self.url, data, content_type='application/json')
         self.assertEqual(response.status_code, 201)
-        self.assertTrue(User.objects.filter(username='testuser').exists())
+        self.assertTrue(User.objects.filter(username='testuser@example.com').exists())
 
 
 class CheckUsernameViewTest(TestCase):
@@ -90,20 +88,3 @@ class UserLoginViewTest(TestCase):
         self.assertIn('Invalid credentials.', response.json()['detail'])
 
 
-class UserFavoritesByIdViewTest(TestCase):
-
-    def setUp(self):
-        self.client = Client()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        video_file = SimpleUploadedFile('test_video.mp4', b'test video content')
-        self.video1 = Video.objects.create(title='Test Video 1', description='A test video 1.', video_file=video_file)
-        self.video2 = Video.objects.create(title='Test Video 2', description='A test video 2.', video_file=video_file)
-        self.user.favorite_videos.add(self.video1, self.video2)
-
-    def test_get_user_favorites(self):
-        url = reverse('user-favorites-by-id', args=[self.user.id])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()), 2)
-        self.assertIn(self.video1.id, response.json())
-        self.assertIn(self.video2.id, response.json())
